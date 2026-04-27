@@ -1,4 +1,4 @@
--- Nguyenduydz Full Mini Script
+-- Nguyenduydz Full Working Script
 
 local player = game.Players.LocalPlayer
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -16,7 +16,7 @@ openBtn.Draggable = true
 
 -- ================= MENU =================
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 170, 0, 150)
+frame.Size = UDim2.new(0, 170, 0, 140)
 frame.Position = UDim2.new(0.15, 0, 0.3, 0)
 frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 frame.Visible = false
@@ -33,10 +33,10 @@ title.TextColor3 = Color3.new(1,1,1)
 title.BackgroundTransparency = 1
 title.TextScaled = true
 
--- ================= VÒNG TRÒN XANH =================
+-- ================= VÒNG TRÒN GIỮA MÀN =================
 local circle = Instance.new("Frame", gui)
-circle.Size = UDim2.new(0,100,0,100)
-circle.Position = UDim2.new(0.5,-50,0.5,-50)
+circle.Size = UDim2.new(0,120,0,120)
+circle.Position = UDim2.new(0.5,-60,0.5,-60)
 circle.BackgroundTransparency = 1
 circle.Visible = false
 
@@ -46,7 +46,7 @@ local stroke = Instance.new("UIStroke", circle)
 stroke.Color = Color3.fromRGB(0,170,255)
 stroke.Thickness = 3
 
--- ================= AIMBOT =================
+-- ================= AIMBOT (DEMO HIỂN THỊ) =================
 local aimbotBtn = Instance.new("TextButton", frame)
 aimbotBtn.Size = UDim2.new(1,-10,0,30)
 aimbotBtn.Position = UDim2.new(0,5,0,35)
@@ -58,17 +58,12 @@ local aimbotOn = false
 
 aimbotBtn.MouseButton1Click:Connect(function()
     aimbotOn = not aimbotOn
+    aimbotBtn.Text = aimbotOn and "Aimbot: ON" or "Aimbot: OFF"
     
-    if aimbotOn then
-        aimbotBtn.Text = "Aimbot: ON"
-        circle.Visible = true -- demo bật vòng tròn
-    else
-        aimbotBtn.Text = "Aimbot: OFF"
-        circle.Visible = false
-    end
+    circle.Visible = aimbotOn
 end)
 
--- ================= CAMERA AIM =================
+-- ================= CAMERA AIM (CÓ TÁC DỤNG THẬT) =================
 local camBtn = Instance.new("TextButton", frame)
 camBtn.Size = UDim2.new(1,-10,0,30)
 camBtn.Position = UDim2.new(0,5,0,75)
@@ -80,12 +75,37 @@ local camOn = false
 
 camBtn.MouseButton1Click:Connect(function()
     camOn = not camOn
+    camBtn.Text = camOn and "Camera Aim: ON" or "Camera Aim: OFF"
+end)
+
+-- ================= LOOP CAMERA =================
+game:GetService("RunService").RenderStepped:Connect(function()
+    if not camOn then return end
     
-    if camOn then
-        camBtn.Text = "Camera Aim: ON"
-        print("Camera aim bật (demo)")
-    else
-        camBtn.Text = "Camera Aim: OFF"
+    local char = player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    
+    local closest = nil
+    local dist = math.huge
+    
+    for _,v in pairs(workspace:GetChildren()) do
+        if v:FindFirstChild("Humanoid") and v ~= char then
+            local hrp = v:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local d = (hrp.Position - char.HumanoidRootPart.Position).Magnitude
+                if d < dist then
+                    dist = d
+                    closest = hrp
+                end
+            end
+        end
+    end
+    
+    if closest then
+        workspace.CurrentCamera.CFrame = CFrame.new(
+            workspace.CurrentCamera.CFrame.Position,
+            closest.Position
+        )
     end
 end)
 
